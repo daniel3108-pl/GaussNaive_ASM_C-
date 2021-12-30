@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="gaussElim.asm" />
+    <MASM Include="gaussSubst.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -1,58 +1,93 @@
-; Program do wykonywania eliminacji gaussa
 .data
-index dq 0
-len dq 0
+j dq 0
+i dq 0
+k dq 0 
+aii dq 0
+ajj dq 0
+sum dq 0
 rows dq 0
 cols dq 0
-ind2 dq 0
-a_ii real8 0.0
-a_ji real8 0.0
+
+matrix dq 0
+arr dq 0
+
 
 .code
-gaussEliminationMASM proc
-	mov index, 0
-	mov ind2, 0
-	mov rows, rdx
-	mov cols, r8
-    imul rdx, cols
-	mov len, rdx
-while1L:
-	mov r12, index
-	mov rbx, len
-	cmp r12, rbx
-	jg end1w
-	mov rdi, index
-	mov r10, ind2
-	mov r12, [rcx + rdi * 8]
-	mov a_ii, r12
-	movupd xmm0, REAL8 PTR [rcx + rdi * 8]
-	movupd real8 ptr [r9 + r10 * 8], xmm0
-	mov rbx, cols
-	add index, rbx
-	add ind2, 1
-	add ind2, 1
-	jmp while1L
-end1w:
+gaussEliminationMASM PROC
+        mov     cols, r8
+        mov     rows, rdx
+		mov		aii, 0
+		mov		ajj, 0
+        mov     i, 0
+        mov     j, 0
+While1:
+        mov     rax, rows
+        cmp     i, rax
+        jge     w1end
+
+		mov		rax, i
+		imul	rax, cols
+		add		rax, i
+		movsd	xmm0, QWORD PTR [rcx + rax * 8]
+		movsd	aii, xmm0
+
+		mov		rax, i
+		inc		rax
+        mov     j, rax
+While2:
+		mov     rax, rows
+        cmp     j, rax
+        jge     w2end
+
+		mov		rax, j
+		imul	rax, cols
+		add		rax, i
+		movsd	xmm0, QWORD PTR [rcx + rax * 8]
+		divsd	xmm0, aii
+		movsd	ajj, xmm0
+
+		mov		k, 0
+While3:
+		mov		rax, cols
+		cmp		k, raX
+		jge		w3end
+
+		mov		rax, j
+		imul	rax, cols
+		add		rax, k
+
+		mov		rdx, i
+		imul	rdx, cols
+		add		rdx, k
+
+		movsd	xmm0, ajj
+		mulsd	xmm0, QWORD PTR [rcx + rdx * 8]
+		movsd	xmm1, QWORD PTR [rcx + rax * 8]
+		subsd	xmm1, xmm0
+		movaps	xmm0, xmm1
+
+		mov		rax, j
+		imul	rax, cols
+		adc		rax, k
+
+		movsd	QWORD PTR [rcx + rax * 8], xmm0
+		; ------ ;
+		mov		rax, k
+		inc		rax
+		mov		k, rax
+		jmp		While3
+w3end:
+		mov		rax, j
+		inc		rax
+		mov		j, rax
+		jmp		While2
+w2end:
+		; ------- ;
+        mov     rax, i
+        inc     rax
+        mov     i, rax
+        jmp		While1
+w1end:
 	ret
-
-gaussEliminationMASM endp
+gaussEliminationMASM ENDP
 end
-
-;.data
-;counter dw 0
-
-; loop example
-;whileL:
-;	mov r12, index
-;	mov rbx, len
-;	cmp r12, rbx
-;	jg endw ; daj not warunek
-;	mov rdi, index
-;	movupd xmm0, REAL8 PTR [rcx + rdi]
-;	mulpd xmm0, xmm0
-;	movupd REAL8 PTR [r9 + rdi], xmm0
-;	add index, 16
-;	jmp whileL na start
-;endw:
-;	ret
-

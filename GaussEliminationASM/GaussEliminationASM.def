@@ -1,2 +1,3 @@
 LIBRARY GaussEliminationASM
 EXPORTS gaussEliminationMASM
+EXPORTS gaussBackSubstMASM
