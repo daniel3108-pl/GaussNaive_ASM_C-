@@ -52,65 +52,65 @@ thenif:
 		mov		m, rax
 while_m_gt_i:
 ; petla while(m > i)
-		mov rax, i ; rax = i
-		cmp m, rax ; sprawdzenie m z rax
-		jle endwmlti 
+		mov		rax, i ; rax = i
+		cmp		m, rax ; sprawdzenie m z rax
+		jle		endwmlti 
 
 if_m_mne0:
 ; warunek if ( matrix[m * cols + i] != 0 ) 
-		mov rax, m
-		imul rax, cols
-		add rax, i
-		mov rcx, matrix
-		movsd xmm0, QWORD PTR [rcx + rax *8]
-		ucomisd xmm0, zero ; porownanie rejestru xmm0  do 0
-		je endifmmi ; jesli rowne if sie nie wykonuje skok do endifmmi
+		mov		rax, m
+		imul	rax, cols
+		add		rax, i
+		mov		rcx, matrix
+		movsd	xmm0, QWORD PTR [rcx + rax *8]
+		ucomisd	xmm0, zero ; porownanie rejestru xmm0  do 0
+		je		endifmmi ; jesli rowne if sie nie wykonuje skok do endifmmi
 thenif2:
 		; przyjecie pivotidx = m i break z petli while_m_gt_i
-		mov rax, m
-		mov pivotidx, rax
-		jmp breakwmlti
+		mov		rax, m
+		mov		pivotidx, rax
+		jmp		breakwmlti
 endifmmi:
 ; jesli if sie nie wykonal nastepuje dekrementacja m i dalsza iteracja petli
-		mov rax, m
-		dec rax
-		mov m, rax
-		jmp while_m_gt_i
+		mov		rax, m
+		dec		rax
+		mov		m, rax
+		jmp		while_m_gt_i
 endwmlti:
 ; nieznaleziono zadnego wiersza gdzie element pocz nie jest 0, funkcja zwraca 0 => Macierz nie rozwiazywalna
-		mov rax, 0
+		mov		rax, 0
 		ret
 breakwmlti:
 ; licznik petli zamieniajacej wiersze 
-		mov l, 0
+		mov		l, 0
 whilerowsswap:
 ; while ( l < l )
-		mov rax, cols
-		cmp l, rax
-		jge endifc
+		mov		rax, cols
+		cmp		l, rax
+		jge		endifc
 
 		;; Zamiana wierszy w macierzy
 		; przygotowanie indeksu do wskaznika na matrix
-		mov rax, i
-		imul rax, cols
-		add rax, l
+		mov		rax, i
+		imul	rax, cols
+		add		rax, l
 		; r10 = wskaznik na matrix
-		mov r10, matrix
-		movsd xmm1, QWORD PTR [r10 + rax * 8] ; xmm1 = matrix[ i * cols + l ]
-		mov rdx, pivotidx
-		imul rdx, cols
-		add rdx, l
-		mov r9, matrix ; r1 = wskaznik na matrix
-		mov r8, matrix ; r8 = wskaznik na matrix
-		movsd xmm0, QWORD PTR [r9 + rdx * 8] ; xmm0 = matrix[ pivotidx * cols + l]
-		movsd QWORD PTR [r8 + rax * 8], xmm0 ; matrix[i * cols + l] = xmm0
-		mov rcx, matrix
-		movsd QWORD PTR [rcx + rdx * 8], xmm1 ; matrix[pivotidx * cols + l] = xmm1
+		mov		r10, matrix
+		movsd	xmm1, QWORD PTR [r10 + rax * 8] ; xmm1 = matrix[ i * cols + l ]
+		mov		rdx, pivotidx
+		imul	rdx, cols
+		add		rdx, l
+		mov		r9, matrix ; r1 = wskaznik na matrix
+		mov		r8, matrix ; r8 = wskaznik na matrix
+		movsd	xmm0, QWORD PTR [r9 + rdx * 8] ; xmm0 = matrix[ pivotidx * cols + l]
+		movsd	QWORD PTR [r8 + rax * 8], xmm0 ; matrix[i * cols + l] = xmm0
+		mov		rcx, matrix
+		movsd	QWORD PTR [rcx + rdx * 8], xmm1 ; matrix[pivotidx * cols + l] = xmm1
 
-		mov rax, l
-		inc rax
-		mov l, rax ; l += 1 | incrementacja licznika l
-		jmp whilerowsswap
+		mov		rax, l
+		inc		rax
+		mov		l, rax ; l += 1 | incrementacja licznika l
+		jmp		whilerowsswap
 
 endifc:
 ; Reszta kodu zajmuje sie doprowadzeniem macierzy do postaci schodkowej
