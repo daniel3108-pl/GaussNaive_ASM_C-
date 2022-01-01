@@ -54,11 +54,7 @@ void threadRowProcessing(double** matrix, int rowStartIndex, int rowLen,
 }
 
 void rowSwap(double** matrix, int index, int pivotIdx, int cols) {
-	for (int i = 0; i < cols; i++) {
-		double temp = (*matrix)[index + i];
-		(*matrix)[index + i] = (*matrix)[pivotIdx + i];
-		(*matrix)[pivotIdx + i] = temp;
-	}
+	std::swap_ranges((*matrix)+index, (*matrix)+(index + cols), (*matrix)+pivotIdx);
 }
 
 /*
@@ -77,6 +73,8 @@ double* gaussElimWithThreading(double matrix[], int rows, int cols, int threadNu
 					pivotIdx = m;
 					break;
 				}
+			if (i == pivotIdx)
+				return nullptr;
 			rowSwap(&matrix, i * cols, pivotIdx * cols, cols);
 		}
 		
