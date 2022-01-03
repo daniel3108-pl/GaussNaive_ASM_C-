@@ -240,12 +240,18 @@ namespace JA_Projekt
                     // Petla uruchamiania watkow do przetwarzania nastepnych rows - 1 - i wierszy
                     while (j < rows)
                     {
+                        // Zapisywanie zmiennych lokalnych do kazdego watku, zeby nie bylo konfliktow
+                        int jcols_loc = j * cols;
+                        int loc_cols = cols;
+                        int loc_i = i;
+                        var matrix = matrix1D;
+
                         // Uruchomienie watkow z argumentami, macierzy, poczatkowego indeksu wiersza do przetworzenia
                         // wspolczynnika a_ii oraz indeksu wiersza w glownej petli
                         threadList[t] = new Thread(() => {
                             // Wywoluje funkcje ktora kazdy podany wiersz od i + do rows odejmuje od odpowiadajcego elementu z i-tego wiersza
                             // * matrix[j][i]/matrix[i][i]
-                            gaussEliminationMASM(matrix1D, j * cols, cols, i);
+                            gaussEliminationMASM(matrix, jcols_loc, loc_cols, loc_i);
                         });
                         // rozpoczecie watku
                         threadList[t].Start();
