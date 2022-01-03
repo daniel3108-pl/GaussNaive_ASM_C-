@@ -17,6 +17,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace JA_Projekt
 {
@@ -158,8 +159,16 @@ namespace JA_Projekt
         public static extern IntPtr gaussElimWithThreading(double[] matrix, int rows, int cols, int threadsNum);
 
         // Procedura z biblioteki DLL MASM x64 doporwadzajaca Macierz do postaci schodkowej
+        //[System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
+        //public static extern void gaussEliminationMASM(double[] matrix, int rows, int cols);
+
         [System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
-        public static extern int gaussEliminationMASM(double[] matrix, int rows, int cols);
+        public static extern double gaussEliminationMASM(double[] matrix, int rowStartIndex, int rows, int idx);
+
+
+        // Procedura z biblioteki DLL MASM x64 zajmujaca sie zamiana 
+        [System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
+        public static extern int gaussPivotingMASM(double[] matrix, int rows, int cols, int i);
 
         // Procedura z biblioteki DLL MASM x64 obliczajaca z postaci schodkowej maciezry wartosci niewiadomych z ukladu rownan
         [System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
@@ -207,11 +216,59 @@ namespace JA_Projekt
             // wywolanie funkcji dla dll'a MASM'owego
             else if (ddlLibrary.ToUpper() == "MASM")
             {
-                int success = gaussEliminationMASM(matrix1D, rows, cols);
-                if (success == 0)
-                    return "Error!\nThis matrix was not possible to compute.\nIt is probably a singular matrix!\nPlease input proper matrix";
-                gaussBackSubstMASM(matrix1D, rows, cols, results);
+                // Glowna petla przechodzaca przez wszystkie - ostatni wiersze w macierzy ukladu rownan
+                for(int i = 0; i < rows - 1; i++)
+                {
+                    // Wywolanie funkcji MASM, ktora sprawdza czy i-ty element i-tego wiersza w macierzy == 0
+                    // jesli tak to szuka pierwszego od tylu wiersza gdzie i-ty jego element nie jest 0 i zamienia te wiersze miejscami
+                    int success = gaussPivotingMASM(matrix1D, rows, cols, i);
+                    if (success == 0)
+                        return "Error!\nThis matrix was not possible to compute.\nIt is probably a singular matrix!\nPlease input proper matrix";
 
+                    // Przygotowanie danych do watkow
+                    int j = i + 1, t = 0;
+                    // Ilosc watkow do przetworzenia (kazda iteracja petli z i moze miec max rows - i - 1 watkow)
+                    int threadsToMake = (threads <= rows - j) ? threads : rows - j;
+                    // Pozostala roznica przewidzianych watkow do inicjalizaji gdy rows - i - 1 % threads nie jest 0 
+                    //(nie przysta liczba watkow a przysta wierszy lub vice versa)
+                    int diff = (rows - j) % threadsToMake;
+
+                    // Vector watkow
+                    //std::vector<std::thread> threads(threadsToMake);
+                    Thread[] threadList = new Thread[threadsToMake];
+
+                    // Petla uruchamiania watkow do przetwarzania nastepnych rows - 1 - i wierszy
+                    while (j < rows)
+                    {
+                        // Uruchomienie watkow z argumentami, macierzy, poczatkowego indeksu wiersza do przetworzenia
+                        // wspolczynnika a_ii oraz indeksu wiersza w glownej petli
+                        threadList[t] = new Thread(() => {
+                            // Wywoluje funkcje ktora kazdy podany wiersz od i + do rows odejmuje od odpowiadajcego elementu z i-tego wiersza
+                            // * matrix[j][i]/matrix[i][i]
+                            gaussEliminationMASM(matrix1D, j * cols, cols, i);
+                        });
+                        // rozpoczecie watku
+                        threadList[t].Start();
+
+                        // gdy ilosc pozostalych wierszy jest rowna roznicy watkow do zrobienia a pozostalych wierszy
+                        // ustawiana ilosc kolejnych watkow do uruchomienia na ta roznice
+                        if (rows - j == diff)
+                            threadsToMake = diff;
+                        t++;
+                        // jesli ilosc uruchomionych watkow jest rowna przewidzianym do wykonania
+                        // nastepuje petla z join'ami watkow, ktora blokuje zakonczenie petli while
+                        // przed ukonczeniem wszystkich watkow
+                        if (t == threadsToMake)
+                        {
+                            // blokada konca petli przed wykonaniem kazdego watkow
+                            for (int s = 0; s < threadsToMake; s++)
+                                threadList[s].Join();
+                            t = 0;
+                        }
+                        j++;
+                    }
+                }
+                gaussBackSubstMASM(matrix1D, rows, cols, results);
             }
             else
                 return "ERROR!! Something went wrong. \nPlease restart this application.";
@@ -226,4 +283,6 @@ namespace JA_Projekt
             return resultOutputLabel;
         }
     }
+
+    
 }
