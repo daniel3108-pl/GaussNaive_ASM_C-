@@ -11,54 +11,70 @@ cols dq 0
 matrix dq 0
 zero dq 0
 
-
+arr_aii dq 0
 ajj dq 0
 rowStartIndex dq 0 
 rowLen dq 0
 idx dq 0
 ; Procedura sprowadzajaca macierz wejsciowa do postaci schodkowej
-; naglowek funkcji w c# : public static extern void gaussEliminationMASM(double[] matrix, int rows, int cols);
+; naglowek funkcji w c# : public static extern double gaussEliminationMASM(double[] matrix, int rowStartIndex, int rows, int idx);
 .code
 gaussEliminationMASM PROC
 start:
-        mov     idx, r9
-        mov     rowLen, r8
-        mov     rowStartIndex, rdx
+		; Zapis do zmiennych wartosci aprametrów z funkcji
+        mov     eax, dword ptr [rbp + 48]
+		cdqe
+		mov		idx, rax
+        mov     rowLen, r9
+        mov     rowStartIndex, r8
+		mov		arr_aii, rdx
         mov     matrix, rcx
 
+		; Zapis do rax, indeksu dla matrix[idx + rowStartIndex]
         mov     rax, idx
         add     rax, rowStartIndex
+		; Zapis do rcx, indeksu dla matrix[idx * rowLen + idx]
         mov     rcx, idx
-        imul    rcx, rowLen
-        add     rcx, idx
 
+		; Zapis wskaznikow na poczatek matrix do rdx oraz r8
         mov     rdx, matrix
-        mov     r8, matrix
+        mov     r8, arr_aii
+		; Zapis do xmm0, matrix[idx + rowStartIndex]
         movsd   xmm0, QWORD PTR [rdx+rax*8]
+		; Podzielenie xmm0 przez arr_aii[idx]
         divsd   xmm0, QWORD PTR [r8+rcx*8]
-        movsd	ajj, xmm0
+        ; Zapis wyniku do zmiennej ajj
+		movsd	ajj, xmm0
         mov     i, 0
+; Petla While( i < rowlen ), przechodzi po ka¿dym elemencie wiersza od rowStartIndex do rowStartIndex + rowLen
 while_i_lt_rowlen:
+; sprawdzenie warunku i < rowLen
         mov     rax, rowLen
         cmp     i, rax
         jge     endwhile
+		; zapis indexu matrix[rowStartIndex + i]
         mov     rax, i
         add     rax, rowStartIndex
-        mov     rcx, idx
-        imul    rcx, rowlen
-        add     rcx, i
-        mov     rdx, matrix
+		; zapis do rcx indeksu matrix[idx * rowLen + i]
+        mov     rcx, i
+		; zapis do rdx wskaznika na poczatek matrix
+        mov     rdx, arr_aii
+		; zapis do xmm0 arr_aii[idx  + i]
         movsd   xmm0, QWORD PTR [rdx+rcx*8]
-        mulsd   xmm0, ajj
-        mov     rcx, matrix
+        mulsd   xmm0, ajj ; arr_aii[idx  + i] * ajj
+        mov     rcx, matrix 
+		; Wykonanie dzia³ania xmm1 = matirx[i + rowStartIndex] - arr_aii[idx + i] (xmm0)
         movsd   xmm1, QWORD PTR [rcx+rax*8]
         subsd   xmm1, xmm0
+		; xmm0 = xmm1
         movaps  xmm0, xmm1
         mov     rax, i
-        add    rax, rowStartIndex
+        add     rax, rowStartIndex
         mov     rcx, matrix
+		; matrix[rowStartIndex + i] = xmm0
         movsd   QWORD PTR [rcx+rax*8], xmm0
 
+		; inkrementacja i i przejscie do kolejnej iteracji petli
 	    mov     rax, i
         inc     rax
         mov     i, rax
