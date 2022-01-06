@@ -30,19 +30,18 @@ using System.Diagnostics;
  */
 namespace JA_Projekt
 {
-    // Main view class that displays user interface 
-    // based on MainWindow.XAML file
+    // Glowna klasa modelu widoku wyswietlajaca interfejs uzytkownika
     public partial class MainWindowViewModel : Window
     {
-        // viewModel Object field
-        private EquationMatrixModel model;
-        // Default Constructor of MainWindow Class
+        // Obiekt modelu aplikacji
+        private GaussEliminationAppModel model;
+        // Konstruktor domyslny 
         public MainWindowViewModel()
         {
             InitializeComponent();
-            this.model = new EquationMatrixModel();
+            this.model = new GaussEliminationAppModel();
 
-            // Initializing DataGrid to hold matrix for equations
+            // Inicjowanie tabeli w widoku i jej wlasciwosci
             this.model.fillMatrixTable((int)this.xPicker.Value);
             this.matrix.ItemsSource = this.model.getMatrixTab().DefaultView;
             this.matrix.DataContext = this.model.getMatrixTab().DefaultView;
@@ -58,25 +57,46 @@ namespace JA_Projekt
             this.Threads.Maximum = this.model.getMatrixTab().Rows.Count - 1;
 
         }
-        // Method that runs equation computing method based on DDL Library and displays its result 
-        // with time that the computation took.
-        private void computeEquation_Click(object sender, RoutedEventArgs e)
+        // Wywolanie w modelu obliczenia wartosci na podstawie odpowiedniej biblioteki DLL  wybranej w radioButtonie przez uzytkownika
+        private async void computeEquation_Click(object sender, RoutedEventArgs e)
         {
+            var prog = new progressBar();
+            prog.setTitle("Computing gauss equation");
+            await this.showProgresBar(prog);
+            await this.computeEquationWorker();
+            prog.Close();
+        }
+        private async Task showProgresBar(progressBar prog)
+        {
+            var progres = prog;
+            progres.Owner = this;
+            progres.Show();
+        }
 
+        private async Task computeEquationWorker()
+        {
+            var model = this.model;
+            var threads = (int)this.Threads.Value;
             if (this.csddl.IsChecked == true)
             {
                 this.showSubWindow(
                         "Result of equation using C++ DLL",
-                        this.model.returnEquationResults("CPP", (int) this.Threads.Value));
+                        await Task.Run(() => {
+                            return model.returnEquationResults("CPP", threads);
+                        })
+                 );
             }
             else if (this.asmddl.IsChecked == true)
             {
                 this.showSubWindow(
                        "Result of equation using MASM DLL",
-                       this.model.returnEquationResults("MASM", (int) this.Threads.Value));
+                       await Task.Run(() => {
+                           return model.returnEquationResults("MASM", threads);
+                       }));
             }
         }
-        // Method that fills data table in grid based on number of variables in the vars slider
+
+        // Metoda ktora zmienia rozmiar tabeli na podany przez uzytkownika w sliderze
         private void applyVar_Click(object sender, RoutedEventArgs e)
         {
             this.model.fillMatrixTable((int)this.xPicker.Value);
@@ -84,9 +104,8 @@ namespace JA_Projekt
             this.matrix.DataContext = this.model.getMatrixTab().DefaultView;
             this.Threads.Maximum = this.model.getMatrixTab().Rows.Count - 1;
         }
-        // A method that displays file open dialog and runs viewModel methods to parse and
-        // save csv file content to DataTable in the grid.
-        private void readCSV_Click(object sender, RoutedEventArgs e)
+        // Metoda wywolujaca okienko wyboru pliku csv, ktory ma byc zapisywany do tabeli jako macierz ukladow rownan
+        private async void readCSV_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog fdlg = new Microsoft.Win32.OpenFileDialog();
             fdlg.FileName = "";
@@ -95,24 +114,33 @@ namespace JA_Projekt
 
             if (fdlg.ShowDialog() == true)
             {
-                if (!this.model.readCSVToMatrix(fdlg.FileName))
-                    this.showSubWindow("Error!",
-                                       "Incorrect file!\nChoose proper file again!");
-                else
-                {
-                    this.matrix.ItemsSource = this.model.getMatrixTab().DefaultView;
-                    this.matrix.DataContext = this.model.getMatrixTab().DefaultView;
-                    this.Threads.Maximum = this.model.getMatrixTab().Rows.Count - 1;
-                }
+                var prog = new progressBar();
+                prog.setTitle("Loading CSV file");
+                await readCSVWorker(fdlg.FileName);
+                await showProgresBar(prog);
+                prog.Close();
             }
             else
                 this.showSubWindow("Error!", "Something went wrong with file dialog!");
 
         }
-        // Method that shows sub window with specified header, body and footer
+        private async Task readCSVWorker(string fpath)
+        {
+            if (!this.model.readCSVToMatrix(fpath))
+                this.showSubWindow("Error!",
+                                   "Incorrect file!\nChoose proper file again!");
+            else
+            {
+                this.matrix.ItemsSource = this.model.getMatrixTab().DefaultView;
+                this.matrix.DataContext = this.model.getMatrixTab().DefaultView;
+                this.Threads.Maximum = this.model.getMatrixTab().Rows.Count - 1;
+            }
+        }
+        // Metoda wywolujaca nowe okno z wynikiem obliczen ukladu rownan
         private void showSubWindow(String head = "", String body = "", String foot = "")
         {
             resultWindow resWin = new resultWindow();
+            resWin.Owner = this;
             resWin.setTextBlockes(head, body, foot);
             resWin.Show();
         }
