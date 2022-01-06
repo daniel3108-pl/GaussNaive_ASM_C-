@@ -235,12 +235,12 @@ namespace JA_Projekt
 
                     double[] arr_aii = new double[cols];
                     Array.Copy(matrix1D, i * cols, arr_aii, 0, cols);
-                    int idx = i, c= cols;
-                    var matrix = matrix1D;
+                    int idx = i, c = cols;
                     // Rownlogela petla idaca po kolejnych wiersza od i + 1, gdzie max ilosc watkow to ta wybrana przez uzytkownika
                     Parallel.For(j, rows, new ParallelOptions { MaxDegreeOfParallelism = threadsToMake }, 
-                    (k) => { 
-                        gaussEliminationMASM(matrix, arr_aii, k * c, c, idx);
+                    (k) => {
+                        Thread.MemoryBarrier();
+                        gaussEliminationMASM(matrix1D, arr_aii, k * c, c, idx);
                     });
 
                 }

@@ -126,7 +126,7 @@ namespace JA_Projekt
         }
         private async Task readCSVWorker(string fpath)
         {
-            if (!this.model.readCSVToMatrix(fpath))
+            if (! await Task.Run( () => this.model.readCSVToMatrix(fpath) ))
                 this.showSubWindow("Error!",
                                    "Incorrect file!\nChoose proper file again!");
             else
