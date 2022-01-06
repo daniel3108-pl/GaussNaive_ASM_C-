@@ -17,18 +17,18 @@ rowStartIndex dq 0
 rowLen dq 0
 idx dq 0
 ; Procedura sprowadzajaca macierz wejsciowa do postaci schodkowej
-; naglowek funkcji w c# : public static extern double gaussEliminationMASM(double[] matrix, int rowStartIndex, int rows, int idx);
+; naglowek funkcji w c# : public static extern double gaussEliminationMASM(double[] matrix, double[] arr_aii, int rowStartIndex, int cols, int idx)
 .code
 gaussEliminationMASM PROC
 start:
 		; Zapis do zmiennych wartosci aprametrów z funkcji
-        mov     eax, dword ptr [rbp + 48]
-		cdqe
-		mov		idx, rax
-        mov     rowLen, r9
-        mov     rowStartIndex, r8
-		mov		arr_aii, rdx
-        mov     matrix, rcx
+        mov     eax, dword ptr [rbp + 48] ; pobranie ze stosu 5 arugmentu  (int idx)
+		cdqe    ; konwersja dword do qworda ( eax zapisywany w rax )
+		mov		idx, rax ; zapis indeksu wiersza w macierzy zapomoca ktorego elementow odejmujemy od elementow wiersza do obliczenia w watku
+        mov     rowLen, r9 ; zapis dlugosci wirsza
+        mov     rowStartIndex, r8 ; zapis indeksu startowego wiersza od ktorego elementow bedziemy odejmowac
+		mov		arr_aii, rdx ; zapis wskaznika na arr_aii czyli idx-ty wiersz w macierzy
+        mov     matrix, rcx ; zapis wskaznika na macierz
 
 		; Zapis do rax, indeksu dla matrix[idx + rowStartIndex]
         mov     rax, idx
