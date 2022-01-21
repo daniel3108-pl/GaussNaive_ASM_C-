@@ -178,3 +178,9 @@ endifc:
 gaussPivotingMASM ENDP
 
 end
+
+; do raportu dopisac 
+; dlaczego scalary
+; dane na 65 zmiennych
+; ustawic z automaty ilosc dostepnych logiczych domyslnie
+; liczyc inaczej czas

@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JA_Projekt", "JA_Projekt\JA_Projekt.csproj", "{8CFB1E79-9EDB-41AA-8694-17319F099FAE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6C095707-200D-4903-91F1-73DDB3CA19A1} = {6C095707-200D-4903-91F1-73DDB3CA19A1}
+		{61EDDD08-E286-453B-B880-F1F8A14FC919} = {61EDDD08-E286-453B-B880-F1F8A14FC919}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GaussEliminationASM", "GaussEliminationASM\GaussEliminationASM.vcxproj", "{61EDDD08-E286-453B-B880-F1F8A14FC919}"
 EndProject

@@ -7,12 +7,18 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="progressBar.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="resultWindow.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindowViewModel.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="progressBar.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="resultWindow.xaml">

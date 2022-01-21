@@ -1,0 +1,23 @@
+﻿<Window x:Class="JA_Projekt.resultWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JA_Projekt"
+        mc:Ignorable="d"
+        Closing="_Closing"
+        Title="Gauss Linear Equation Result" Height="400" Width="400"
+        Background="#333231">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock x:Name ="header" FontSize="22" Margin="10"
+                       HorizontalAlignment="Center" Foreground="White"></TextBlock>
+                <TextBlock x:Name="result" FontSize="20" HorizontalAlignment="Center" Foreground="White"
+                       Margin="10"></TextBlock>
+                <TextBlock x:Name="footer" FontSize="15" HorizontalAlignment="Center" Foreground="White"
+                       Margin="10"></TextBlock>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

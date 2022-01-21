@@ -154,7 +154,7 @@ namespace JA_Projekt
         }
 
         // Funkcja z biblioteki DLL C++ oblcizajaca wielowatkowo wartosci ukladu rownan
-        [System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationCPP.dll",
+        [System.Runtime.InteropServices.DllImport(@"GaussEliminationCPP.dll",
             CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr gaussElimWithThreading(double[] matrix, int rows, int cols, int threadsNum);
 
@@ -162,23 +162,23 @@ namespace JA_Projekt
         //[System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
         //public static extern void gaussEliminationMASM(double[] matrix, int rows, int cols);
 
-        [System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
+        [System.Runtime.InteropServices.DllImport(@"GaussEliminationASM.dll")]
         public static extern double gaussEliminationMASM(double[] matrix, double[] arr_aii, int rowStartIndex, int cols, int idx);
 
 
         // Procedura z biblioteki DLL MASM x64 zajmujaca sie zamiana 
-        [System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
+        [System.Runtime.InteropServices.DllImport(@"GaussEliminationASM.dll")]
         public static extern int gaussPivotingMASM(double[] matrix, int rows, int cols, int i);
 
         // Procedura z biblioteki DLL MASM x64 obliczajaca z postaci schodkowej maciezry wartosci niewiadomych z ukladu rownan
-        [System.Runtime.InteropServices.DllImport(@"C:\Users\Daniel\source\repos\JA_Projekt\x64\Debug\GaussEliminationASM.dll")]
+        [System.Runtime.InteropServices.DllImport(@"GaussEliminationASM.dll")]
         public static extern void gaussBackSubstMASM(double[] matrix, int rows, int cols, double[] results);
 
         // Funkcja wywolujaca odpowiednia biblioteke na podstawie podanej ilosci watkow oraz wybranego rodzaju DLL'a
         // oraz zwracajaca Stringa z cialem do wyswietlenia w okienku z wynikiem programu
         public String returnEquationResults(String ddlLibrary, int threads)
         {
-            var matrix2D = this.matrixTabToArray();
+            double[][] matrix2D = this.matrixTabToArray();
             if (matrix2D[0][0] == 0)
                 return "ERROR!\nCannot run app when first element is 0";
 
@@ -256,7 +256,7 @@ namespace JA_Projekt
             foreach (double item in results)
                 resultOutputLabel += $"x{k++} = {item}\n";
 
-            resultOutputLabel += $"\n\nExceution time: {stopwatch.ElapsedMilliseconds} ms\n";
+            resultOutputLabel += $"\n\nExceution time: {stopwatch.ElapsedTicks/1000} K ticks\n";
             return resultOutputLabel;
         }
     }

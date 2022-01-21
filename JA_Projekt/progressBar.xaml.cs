@@ -12,9 +12,7 @@ using System.Windows.Shapes;
 
 namespace JA_Projekt
 {
-    /// <summary>
-    /// Logika interakcji dla klasy progressBar.xaml
-    /// </summary>
+    // Klasa odpowiadajaca za tworzenie okna z progress bar'em
     public partial class progressBar : Window
     {
         public progressBar()
@@ -25,6 +23,16 @@ namespace JA_Projekt
         public void setTitle(string title)
         {
             this.Title = title;
+        }
+
+        // Przyznanie rodzicowi okna (czyli glownemu oknu z tabela) focus'a
+        void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (null != Owner)
+            {
+                Owner.Activate();
+            }
         }
     }
 }

@@ -39,7 +39,7 @@
                     AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" TickPlacement="BottomRight"
                     TickFrequency="1" IsSnapToTickEnabled="True"></Slider>
             </DockPanel>
-           
+
             <TextBlock Text="Please edit a Matrix below with ONLY numbers ( ! mark will appear if wrong data)" 
                        Foreground="White" HorizontalAlignment="Center" Margin="10"
                        FontSize="15"></TextBlock>
@@ -52,6 +52,5 @@
                     Background="#122661" Foreground="White"></Button>
             </DockPanel>
         </StackPanel>
-
     </Grid>
 </Window>

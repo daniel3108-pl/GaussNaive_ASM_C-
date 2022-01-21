@@ -103,6 +103,7 @@ namespace JA_Projekt
             this.matrix.ItemsSource = this.model.getMatrixTab().DefaultView;
             this.matrix.DataContext = this.model.getMatrixTab().DefaultView;
             this.Threads.Maximum = this.model.getMatrixTab().Rows.Count - 1;
+            this.Threads.Value = System.Environment.ProcessorCount > this.Threads.Maximum ? System.Environment.ProcessorCount : this.Threads.Maximum;
         }
         // Metoda wywolujaca okienko wyboru pliku csv, ktory ma byc zapisywany do tabeli jako macierz ukladow rownan
         private async void readCSV_Click(object sender, RoutedEventArgs e)
@@ -126,14 +127,15 @@ namespace JA_Projekt
         }
         private async Task readCSVWorker(string fpath)
         {
-            if (! await Task.Run( () => this.model.readCSVToMatrix(fpath) ))
+            if (!await Task.Run( () => this.model.readCSVToMatrix(fpath) ))
                 this.showSubWindow("Error!",
-                                   "Incorrect file!\nChoose proper file again!");
+                                   "Incorrect file or not choosed!\nChoose proper file again!");
             else
             {
                 this.matrix.ItemsSource = this.model.getMatrixTab().DefaultView;
                 this.matrix.DataContext = this.model.getMatrixTab().DefaultView;
                 this.Threads.Maximum = this.model.getMatrixTab().Rows.Count - 1;
+                this.Threads.Value = System.Environment.ProcessorCount > this.Threads.Maximum ? System.Environment.ProcessorCount : this.Threads.Maximum;
             }
         }
         // Metoda wywolujaca nowe okno z wynikiem obliczen ukladu rownan

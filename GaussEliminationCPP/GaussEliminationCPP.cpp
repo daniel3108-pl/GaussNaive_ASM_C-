@@ -43,17 +43,17 @@ double* gaussBackSubstition(double* matrix, int rows, int cols) {
 void threadRowProcessing(double** matrix, int rowStartIndex, int rowLen,
     double a_ii, int i_index) {
 
-    double a_ji = (*matrix)[rowStartIndex + i_index] / a_ii;
-    int j = 0;
+    double a_ji = (*matrix)[rowStartIndex + i_index] / a_ii; // aii = matrix[i * cols + i]
 
     for (int i = 0; i < rowLen; i++) {
         (*matrix)[rowStartIndex + i] -= (*matrix)[i_index * rowLen + i] * a_ji;
-        j++;
     }
 
 }
 
+// Funkcja zamieniajaca miejscami fragmenty z tej samej tablicy
 void rowSwap(double** matrix, int index, int pivotIdx, int cols) {
+	// Funkcja swap_ranges zamienia wybrane fragmenty tablicy miejscami
 	std::swap_ranges((*matrix)+index, (*matrix)+(index + cols), (*matrix)+pivotIdx);
 }
 
@@ -64,8 +64,12 @@ void rowSwap(double** matrix, int index, int pivotIdx, int cols) {
 */
 double* gaussElimWithThreading(double matrix[], int rows, int cols, int threadNum) 
 {
+	// Glowna petla algorytmu - przechodzi po kazdym wierszu - 1
 	for (int i = 0; i < rows - 1; i++) {
 
+		// Warunek sprawdzajacy czy i wartosc w przekatnej macierzy[i][i] jest rowna 0 jesli jest
+		// nastepuje petla, ktora wyszukuje pierwszy i-ty elementy w kazdym wierszach macierzy od tylu ktory != 0
+		// Jesli znalazl ustwaia pivotIdx na indeks wiersza ze znalezionym elementem
 		if ((int)matrix[i * cols + i] == 0) {
 			int pivotIdx = i;
 			for (int m = rows - 1; m > i; m--)
@@ -73,8 +77,10 @@ double* gaussElimWithThreading(double matrix[], int rows, int cols, int threadNu
 					pivotIdx = m;
 					break;
 				}
+			// jesli nie znaleziono zadnego weirsza z i-tym elementem nierownym 0 macierz jest nierozwiazywalna zwraca nullptr
 			if (i == pivotIdx)
 				return nullptr;
+			// jesli znaleziono zamiana wierszy z i-tym i pivotIdx-tym miejscami
 			rowSwap(&matrix, i * cols, pivotIdx * cols, cols);
 		}
 		
