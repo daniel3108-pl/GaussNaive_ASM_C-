@@ -22,9 +22,8 @@ using System.Diagnostics;
  * Temat: Obliczanie układów równań metodą Eliminacji Gaussa
  * 
  * Autor: Daniel Świetlik
- * Kierunek: Informatyka Katowice
- * Grupa: 2
- * Prowadzący: Krzysztof Hanzel
+ *
+ *
  * 
  * 
  */
